@@ -4,7 +4,7 @@
 <img width="181" alt="image" src="https://user-images.githubusercontent.com/3955579/198214268-a9c00dc5-63cf-4a5c-af8d-d817f15c3db3.png">
 
 A nice graph showing todays prices as a graph on the lock screen or home screen using Scriptable.
-Requires subscription to Tibber
+Requires a subscription to Tibber.
 
 1) Join the Testflight Beta of Scriptable (Lock screen support is only available in this version)
 https://testflight.apple.com/join/uN1vTqxk
@@ -13,6 +13,7 @@ https://testflight.apple.com/join/uN1vTqxk
 
 3) Copy and paste the script into a new script in Scriptable. Make sure to insert your API token.
 
+4) Edit the lock screen and add the new widget
 
 ## Future updates
 - I'd like to have it change at 13.00 and update the graph to show today 12-23 and tomorrow 00-11. The tomorrow data is already in priceObject.tomorrow
