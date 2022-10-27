@@ -15,7 +15,8 @@ https://testflight.apple.com/join/uN1vTqxk
 
 
 ## Future updates
-- I'd like to have it change at 13.00 and update the graph to show today 12-23 and tomorrow 00-11
-- The two digit numbers under the graph is tiiiiny too much to the right.
+- I'd like to have it change at 13.00 and update the graph to show today 12-23 and tomorrow 00-11. The tomorrow data is already in priceObject.tomorrow
+- Adjust the two digit numbers under the graph that is a tiiiiny bit too much to the right.
+- Use the vertical space better in the Home screen widget and maybe adjust the layout a bit.
 
-If you like to update it, feel free to :)
+If you like to update it, feel free to make a PR :)
