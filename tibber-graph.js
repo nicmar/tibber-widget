@@ -11,7 +11,7 @@ const sunLimit2 = 12.00 // When solar is above this limit, it's yellow
 const maxPrice = 3.5 // Max price for red color
 const lockScreen = config.runsInAccessoryWidget
 
-// Add Tibber token here (Get from https://developer.tibber.com)
+// Add Tibber token here (Get from [https://developer.tibber.com)]https://developer.tibber.com)
 const tibberToken = "xxxxxxxx"
 
 // Widget code starts here
@@ -42,14 +42,14 @@ let hour = priceObject.hour; // 20:00
 
 let capPrice = price > maxPrice ? maxPrice : price;
 let warnHex = lerpColor("#00ff00","#ff0000",capPrice/maxPrice);
-  
+
 if (config.runsInAccessoryWidget) {
   warnHex = "#ffffff"
 }
 
 let warnColor = new Color(warnHex, 1)
-  
-  
+
+
 // 1.30 (Separate stack to align the small "kr" correctly)
 const priceStack = headerStack.addStack();
 
@@ -98,7 +98,7 @@ headerStack.addSpacer()
 const kW = 17.2
 let sunIconLabel = kW > sunLimit2 ? "sun.max.fill" : kW > sunLimit1 ? "sun.max" : "cloud"
 let sunIconColor = kW > sunLimit2 ? Color.yellow() : kW > sunLimit1 ? Color.white() : Color.gray()
-const sunImageStack = headerStack.addStack(); 
+const sunImageStack = headerStack.addStack();
 sunImageStack.setPadding(4, 0, 0, 2);
 const sunNode = sunImageStack.addImage(getIcon(sunIconLabel,18).image);
 sunNode.tintColor = sunIconColor
@@ -123,7 +123,7 @@ sunText2.textOpacity = 0.5
 headerStack.addSpacer()
 
 // Bulb icon
-const imageStack = headerStack.addStack(); 
+const imageStack = headerStack.addStack();
 imageStack.setPadding(0, 0, 0, 0);
 const imageNode = imageStack.addImage(getIcon("bolt.fill",18).image);
 imageNode.tintColor = warnColor
@@ -149,7 +149,19 @@ container.spacing = spacing
 
 
 for (hour = 0; hour <= 23; hour++) {
-  let hourPrice = priceObject.today[hour].total
+  const d = new Date();
+let currentHour = d.getHours();
+
+let hourPrice;
+
+// if current time is more than 14 (tomorrow's price should be available) then show today's electricity 14-23 and tomorrow's electricity 00-12
+if(currentHour>13) {
+      if(hour<13) { hourPrice = priceObject.tomorrow[hour].total; }
+      else { hourPrice = priceObject.today[hour].total; }
+ }
+ else{
+      hourPrice= priceObject.today[hour].total
+ }
 
   // For testing
   //if (hour == 16) hourPrice = 5
@@ -157,9 +169,7 @@ for (hour = 0; hour <= 23; hour++) {
 
   //log(`${hour} ${priceObject.today[hour].total}`)
   let bar = container.addStack()
-  
-  const d = new Date();
-  let currentHour = d.getHours();
+
   let alpha = 0.4
 
 
@@ -176,19 +186,25 @@ for (hour = 0; hour <= 23; hour++) {
     alpha = 0.2
   }
 
-  // Get color from green (cheap) to red (expensive) 
+  // Get color from green (cheap) to red (expensive)
   let hourHex = getColor(hourPrice/maxPrice);
   //hourHex = rgb2hex(...hsl2rgb(hue,1,0.5));
-  
+
+// change color and dim more to indicate tomorrow's prices
+  if (currentHour > 14 && hour <13) {
+    hourHex = "#ffffff";
+    alpha = 0.1;
+  }
+
   if (lockScreen || false) {
     hourHex = "#ffffff"
   }
 
   let hourColor = new Color(hourHex, alpha)
-  
+
   bar.backgroundColor = hourColor
   bar.cornerRadius = cornerRadius
-  bar.size = new Size((width-24*spacing)/24, height*value)  
+  bar.size = new Size((width-24*spacing)/24, height*value)
 
 }
 
@@ -203,7 +219,7 @@ container2.setPadding(0,-1,0,0)
 
 
 
-for (hour = 0; hour < 24; hour+=4) {  
+for (hour = 0; hour < 24; hour+=4) {
   let b = container2.addStack()
   const h = b.addText(`${hour}`);
   //   b.setPadding(0, 0, 0, 0)
@@ -211,7 +227,7 @@ for (hour = 0; hour < 24; hour+=4) {
   //b.backgroundColor = Color.red()
   h.font = Font.mediumMonospacedSystemFont(8)
   h.textColor = Color.white()
-  h.textOpacity = 0.5// // 
+  h.textOpacity = 0.5// //
   h.leftAlignText();
   // h.font = Font.lightRoundedSystemFont(7)
   if (hour < 24) b.addSpacer()
@@ -221,18 +237,18 @@ for (hour = 0; hour < 24; hour+=4) {
 //let progressStack = await progressCircle(widget,35)
 //   let b = container2.addStack()
 // b.addText("23")
-            
+
 /*
   const rowStack = widget.addStack();
   rowStack.setPadding(0, 0, 0, 0);
   rowStack.layoutHorizontally();
-  
-  const priceStack = rowStack.addStack(); 
+
+  const priceStack = rowStack.addStack();
   const priceText = priceStack.addText(`${price} kr`);
   priceText.font = Font.mediumSystemFont(16);
 
-  
-      
+
+
 
   */
 
@@ -245,8 +261,8 @@ log(nextHour)
 widget.refreshAfterDate = nextHour
 
 // Preview type in editor
-// widget.presentSmall()// // 
-widget.presentMedium()// 
+// widget.presentSmall()// //
+widget.presentMedium()//
 // widget.presentLarge()
 //widget.presentSmall();
 
@@ -280,7 +296,7 @@ async function getCurrentPrice(tokenId) {
   req.method = "post";
   req.headers = { "Authorization": "Bearer " + tibberToken,      "Content-Type": "application/json"    };
   req.body = JSON.stringify({query: query})
-  const res = await req.loadJSON() 
+  const res = await req.loadJSON()
   const price = res.data.viewer.homes[0].currentSubscription.priceInfo.current.total;
   const time = res.data.viewer.homes[0].currentSubscription.priceInfo.current.startsAt;
   const today = res.data.viewer.homes[0].currentSubscription.priceInfo.today;
@@ -316,12 +332,12 @@ function getColor(x) {
   if (x>=0.5) { return "#ffFF00"; } else
   if (x>=0.4) { return "#CCFF00"; } else
   if (x>=0.3) { return "#99FF00"; } else
-  if (x>=0.2) { return "#66FF00"; } else              
-  if (x>=0.1) { return "#33FF00"; } else              
+  if (x>=0.2) { return "#66FF00"; } else
+  if (x>=0.1) { return "#33FF00"; } else
   return "#00ff00";
 }
 
-function lerpColor(a, b, amount) { 
+function lerpColor(a, b, amount) {
 
     var ah = parseInt(a.replace(/#/g, ''), 16),
         ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
