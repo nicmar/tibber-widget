@@ -11,8 +11,8 @@ const sunLimit2 = 12.00 // When solar is above this limit, it's yellow
 const maxPrice = 3.5 // Max price for red color
 const lockScreen = config.runsInAccessoryWidget
 
-// Add Tibber token here (Get from [https://developer.tibber.com)]https://developer.tibber.com)
-const tibberToken = "xxxxxxxx"
+// Add Tibber token here (Get from [https://developer.tibber.com)]
+const tibberToken = "gurEAVwWjrhnYmnTlgLhY-UaU99f1jAuCkYcEO6Uz5k"
 
 // Widget code starts here
 const widget = new ListWidget();
@@ -150,18 +150,21 @@ container.spacing = spacing
 
 for (hour = 0; hour <= 23; hour++) {
   const d = new Date();
-let currentHour = d.getHours();
+  let currentHour = d.getHours();
 
-let hourPrice;
+  let hourPrice;
 
-// if current time is more than 14 (tomorrow's price should be available) then show today's electricity 14-23 and tomorrow's electricity 00-12
-if(currentHour>13) {
-      if(hour<13) { hourPrice = priceObject.tomorrow[hour].total; }
-      else { hourPrice = priceObject.today[hour].total; }
- }
- else{
-      hourPrice= priceObject.today[hour].total
- }
+  if(priceObject.tomorrow.length >1) { // If tomorrows prices has arrived then show today 12-24 and tomorror 00-12 
+      if(hour<12){ //Fot the first 12 bars, use todays prices 12-24
+        hourPrice = priceObject.today[hour+12].total
+      }
+      else{ // for the 12 following bars use tomorrow'a prices 00-12
+        hourPrice = priceObject.tomorrow[hour-12].total
+      }
+   }
+   else{
+      hourPrice = priceObject.today[hour].total
+   }
 
   // For testing
   //if (hour == 16) hourPrice = 5
@@ -172,29 +175,41 @@ if(currentHour>13) {
 
   let alpha = 0.4
 
+  if(priceObject.tomorrow.length > 1){ //If tomorrows prices have arrived
+    if (hour+12 == currentHour) {
+      // Current hour = Full alpha
+      alpha = 1
+    } else {
+      // Future hours, dimmer on lockscreen due to how colors work there
+      alpha = lockScreen ? 0.4 : 0.7
+    }
 
-  if (hour == currentHour) {
-    // Current hour = Full alpha
-    alpha = 1
-  } else {
-    // Future hours, dimmer on lockscreen due to how colors work there
-    alpha = lockScreen ? 0.4 : 0.7
+    // Passed hours, show as very dim
+    if (hour+12 < currentHour) {
+      alpha = 0.2
+     }
   }
+  else{ // Original functionality
+    if (hour == currentHour) {
+      // Current hour = Full alpha
+      alpha = 1
+    } else {
+      // Future hours, dimmer on lockscreen due to how colors work there
+      alpha = lockScreen ? 0.4 : 0.7
+    }
 
-  // Passed hours, show as very dim
-  if (hour < currentHour) {
-    alpha = 0.2
+    // Passed hours, show as very dim
+    if (hour < currentHour) {
+      alpha = 0.2
+     }
   }
-
+  
+  
   // Get color from green (cheap) to red (expensive)
   let hourHex = getColor(hourPrice/maxPrice);
   //hourHex = rgb2hex(...hsl2rgb(hue,1,0.5));
 
-// change color and dim more to indicate tomorrow's prices
-  if (currentHour > 14 && hour <13) {
-    hourHex = "#ffffff";
-    alpha = 0.1;
-  }
+
 
   if (lockScreen || false) {
     hourHex = "#ffffff"
@@ -218,19 +233,42 @@ container2.setPadding(0,-1,0,0)
 
 
 
-
-for (hour = 0; hour < 24; hour+=4) {
-  let b = container2.addStack()
-  const h = b.addText(`${hour}`);
-  //   b.setPadding(0, 0, 0, 0)
-  b.size = new Size(width / 6,10)
-  //b.backgroundColor = Color.red()
-  h.font = Font.mediumMonospacedSystemFont(8)
-  h.textColor = Color.white()
-  h.textOpacity = 0.5// //
-  h.leftAlignText();
-  // h.font = Font.lightRoundedSystemFont(7)
-  if (hour < 24) b.addSpacer()
+  if(priceObject.tomorrow.length > 1) { // If tomorrows prices have arrived then start at 12 and go to 12
+    for (hour = 12; hour < 36; hour+=4) {
+      let b = container2.addStack()
+      let h;
+      if(hour<24){ // Write 12-20 normally
+        h = b.addText(`${hour}`);
+      }
+      else{ //Remove 24 from our to write 00-20 for tomorrow's prices
+        const tomorrowHour = hour-24
+        h = b.addText(`${tomorrowHour}`);
+      }
+      //   b.setPadding(0, 0, 0, 0)
+      b.size = new Size(width / 6,10)
+      //b.backgroundColor = Color.red()
+      h.font = Font.mediumMonospacedSystemFont(8)
+      h.textColor = Color.white()
+      h.textOpacity = 0.5// //
+      h.leftAlignText();
+      // h.font = Font.lightRoundedSystemFont(7)
+      if (hour < 36) b.addSpacer()
+    }
+  }
+  else{
+    for (hour = 0; hour < 24; hour+=4) {
+    let b = container2.addStack()
+    const h = b.addText(`${hour}`);
+    //   b.setPadding(0, 0, 0, 0)
+    b.size = new Size(width / 6,10)
+    //b.backgroundColor = Color.red()
+    h.font = Font.mediumMonospacedSystemFont(8)
+    h.textColor = Color.white()
+    h.textOpacity = 0.5// //
+    h.leftAlignText();
+    // h.font = Font.lightRoundedSystemFont(7)
+    if (hour < 24) b.addSpacer()
+  }
 }
 
 
