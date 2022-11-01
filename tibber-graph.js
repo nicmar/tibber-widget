@@ -12,7 +12,7 @@ const maxPrice = 3.5 // Max price for red color
 const lockScreen = config.runsInAccessoryWidget
 
 // Add Tibber token here (Get from [https://developer.tibber.com)]
-const tibberToken = "gurEAVwWjrhnYmnTlgLhY-UaU99f1jAuCkYcEO6Uz5k"
+const tibberToken = "5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE" //DEMO Tibber token, change to your own tibber token
 
 // Widget code starts here
 const widget = new ListWidget();
