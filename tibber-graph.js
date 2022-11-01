@@ -155,10 +155,10 @@ for (hour = 0; hour <= 23; hour++) {
   let hourPrice;
 
   if(priceObject.tomorrow.length >1) { // If tomorrows prices has arrived then show today 12-24 and tomorror 00-12 
-      if(hour<12){ //Fot the first 12 bars, use todays prices 12-24
+      if(hour<12){ //For the first 12 bars, use todays prices 12-24
         hourPrice = priceObject.today[hour+12].total
       }
-      else{ // for the 12 following bars use tomorrow'a prices 00-12
+      else{ // for the 12 following bars use tomorrow's prices 00-12
         hourPrice = priceObject.tomorrow[hour-12].total
       }
    }
