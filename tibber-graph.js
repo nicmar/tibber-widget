@@ -9,6 +9,7 @@ const limit3 = 3.00
 const sunLimit1 = 5.00 // When solar is above this, it's white
 const sunLimit2 = 12.00 // When solar is above this limit, it's yellow
 const maxPrice = 3.5 // Max price for red color
+const autoScaleHeight = false // Auto scale the bar height according to min/max price for today and tomorrow (if it exists yet)
 const lockScreen = config.runsInAccessoryWidget
 
 // Add Tibber token here (Get from [https://developer.tibber.com)]
@@ -221,11 +222,18 @@ for (hour = 0; hour <= 23; hour++) {
   }
 
   let hourColor = new Color(hourHex, alpha)
-  let barHeight = scale(hourPrice * currencyUnitConstant, priceMin, priceMin, 0, height)
+  let barHeight = scale(hourPrice, priceMin, priceMax, 0, height)
   
   bar.backgroundColor = hourColor
   bar.cornerRadius = cornerRadius
-  bar.size = new Size((width-24*spacing)/24, barHeight)
+  
+  if(autoScaleHeight){
+    bar.size = new Size((width-24*spacing)/24, barHeight)
+  }
+  else {
+    bar.size = new Size((width-24*spacing)/24, height*value)
+  }
+
 
 }
 
