@@ -9,6 +9,7 @@ const limit3 = 3.00
 const sunLimit1 = 5.00 // When solar is above this, it's white
 const sunLimit2 = 12.00 // When solar is above this limit, it's yellow
 const maxPrice = 3.5 // Max price for red color
+const autoScaleHeight = false // Auto scale the bar height according to min/max price for today and tomorrow (if it exists yet)
 const lockScreen = config.runsInAccessoryWidget
 
 // Add Tibber token here (Get from [https://developer.tibber.com)]
@@ -36,6 +37,11 @@ let priceObject = await getCurrentPrice();
   */
 let price = priceObject.price.toFixed(2); // 1.35
 let hour = priceObject.hour; // 20:00
+
+// Get min/max price for today and eventually tomorrow (if exists)
+const todayAndTomorrow = [].concat(priceObject.today, priceObject.tomorrow)       // Combine the two arrays into one.
+let priceMin = Math.min.apply(null, todayAndTomorrow.map(item => item.total));    // Get min price during current period.
+let priceMax = Math.max.apply(null, todayAndTomorrow.map(item => item.total));   // Get max price during current period.
 
 // Set color based on price
 //warnColor = price > limit2 ? new Color('#ff0000') :  price > limit1 ? new Color('#ff9900') :  new Color('#00ff00');
@@ -216,10 +222,18 @@ for (hour = 0; hour <= 23; hour++) {
   }
 
   let hourColor = new Color(hourHex, alpha)
-
+  let barHeight = scale(hourPrice, priceMin, priceMax, 0, height)
+  
   bar.backgroundColor = hourColor
   bar.cornerRadius = cornerRadius
-  bar.size = new Size((width-24*spacing)/24, height*value)
+  
+  if(autoScaleHeight){
+    bar.size = new Size((width-24*spacing)/24, barHeight)
+  }
+  else {
+    bar.size = new Size((width-24*spacing)/24, height*value)
+  }
+
 
 }
 
@@ -399,3 +413,15 @@ let hexStr2rgb  = (hexStr) => `rgb(${hexStr.substr(1).match(/../g).map(x=>+`0x${
 
 // rgb - color str e.g."rgb(12,233,43)", result color hex e.g. "#0ce92b"
 let rgbStrToHex= rgb=> '#'+rgb.match(/\d+/g).map(x=>(+x).toString(16).padStart(2,0)).join``
+
+function scale(value, inMin, inMax, outMin, outMax) {
+  const result = (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+
+  if (result < outMin) {
+    return outMin;
+  } else if (result > outMax) {
+    return outMax;
+  }
+
+  return result;
+}
